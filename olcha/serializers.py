@@ -31,6 +31,16 @@ class GroupModelSerializer(ModelSerializer):
 
 
 class ProductModelSerializer(ModelSerializer):
+    def get_like(self):
+        if self.context['request'].user.is_authenticated:
+            like = self.context['request'].user.get_like()
+            if like:
+                return True
+            return False
+
+    def get_average_rate(self):
+        return
+
     class Meta:
         model = ProductModel
         fields = '__all__'

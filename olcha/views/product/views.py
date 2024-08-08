@@ -13,3 +13,4 @@ class ProductListApiView(ListAPIView):
         group_slug = self.kwargs['group_slug']
         queryset = ProductModel.objects.filter(group__category__slug=category_slug, group__slug=group_slug)
         return queryset
+
