@@ -17,6 +17,8 @@ class CategoryModel(models.Model):
     slug = models.SlugField(max_length=100, blank=True)
     image = models.ImageField(upload_to='media/', null=True, blank=True)
 
+    objects = models.Manager
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
@@ -32,25 +34,25 @@ class CategoryModel(models.Model):
 
 
 class GroupModel(BaseModel):
-    title = models.CharField(max_length=90)
-    slug = models.SlugField(unique=True, blank=True)
+    title = models.CharField(max_length=90, unique=True)
+    slug = models.SlugField(null=True, blank=True)
     image = models.ImageField(upload_to='media/images/group/')
     category = models.ForeignKey(CategoryModel, on_delete=models.CASCADE, related_name='groups')
+
+    objects = models.Manager
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
 
-        if self.slug:
-            i = 1
-            while True:
-                new_slug = f"{slugify(self.title)}-{i}"
-                if not GroupModel.objects.filter(slug=new_slug).exists():
-                    self.slug = new_slug
-                    break
-                i += 1
-
         super(GroupModel, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = 'Group'
+        verbose_name_plural = 'Groups'
 
 
 class ProductModel(BaseModel):
@@ -62,7 +64,7 @@ class ProductModel(BaseModel):
     group = models.ForeignKey(GroupModel, on_delete=models.CASCADE, related_name='products')
     is_liked = models.ManyToManyField(User, related_name='liked_products', blank=True)
 
-    objects = models.Manager()
+    objects = models.Manager
 
     @property
     def discounted_price(self) -> Any:
@@ -74,19 +76,14 @@ class ProductModel(BaseModel):
         if not self.slug:
             self.slug = slugify(self.name)
 
-        if self.slug:
-            i = 1
-            while True:
-                new_slug = f"{slugify(self.name)}-{i}"
-                if not ProductModel.objects.filter(slug=new_slug).exists():
-                    self.slug = new_slug
-                    break
-                i += 1
-
         super(ProductModel, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
-        ordering = ['-created_at']
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
 
 
 class ImageModel(BaseModel):
@@ -112,6 +109,8 @@ class CommentModel(BaseModel):
     product = models.ForeignKey(ProductModel, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
 
+    objects = models.Manager
+
 
 class Key(BaseModel):
     name = models.CharField(max_length=70)
@@ -125,3 +124,5 @@ class Attribute(models.Model):
     key = models.ForeignKey(Key, on_delete=models.CASCADE)
     value = models.ForeignKey(Value, on_delete=models.CASCADE)
     product = models.ForeignKey(ProductModel, on_delete=models.CASCADE)
+
+    objects = models.Manager
