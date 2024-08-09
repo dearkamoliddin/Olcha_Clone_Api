@@ -69,7 +69,7 @@ class ProductModel(BaseModel):
     @property
     def discounted_price(self) -> Any:
         if self.discount > 0:
-            return self.price * (1 - (self.discount / 100.0))
+            return self.price * (1 - (self.discount // 100))
         return self.price
 
     def save(self, *args, **kwargs):
@@ -102,6 +102,10 @@ class CommentModel(BaseModel):
         Three = 3
         Four = 4
         Five = 5
+
+        def get_average_rate(self):
+            avg = (self.One + self.Two + self.Three + self.Four + self.Five) / 5
+            return avg
 
     message = models.TextField()
     rating = models.IntegerField(choices=Rating.choices, default=Rating.One.value)
