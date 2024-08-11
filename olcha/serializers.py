@@ -56,9 +56,9 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
 class AttributeSerializer(serializers.ModelSerializer):
-    attribute = serializers.SerializerMethodField()
+    attributes = serializers.SerializerMethodField()
 
-    def get_attribute(self, products):
+    def get_attributes(self, products):
         attributes = AttributeModel.objects.filter(product=products.id)
         attributes_dict = {}
         for attribute in attributes:
@@ -103,13 +103,6 @@ class AttributeSerializer(serializers.ModelSerializer):
 
 
 
-# from django.db.models import Avg
-# from django.db.models.functions.math import Round
-# from rest_framework import serializers
-# from rest_framework.serializers import ModelSerializer
-# from olcha.models import CategoryModel, GroupModel, ProductModel, AttributeModel, ImageModel
-#
-#
 # class CategoryModelSerializer(ModelSerializer):
 #     group_count = serializers.SerializerMethodField()
 #
