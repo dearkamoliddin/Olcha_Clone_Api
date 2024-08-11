@@ -91,8 +91,14 @@ class ImageModel(BaseModel):
     product = models.ForeignKey(ProductModel, on_delete=models.CASCADE, related_name='images')
     is_primary = models.BooleanField(default=False)
 
+    objects = models.Manager
+
     def __str__(self):
         return self.product.name
+
+    class Meta:
+        verbose_name = 'Image'
+        verbose_name_plural = 'Images'
 
 
 class CommentModel(BaseModel):
@@ -109,7 +115,7 @@ class CommentModel(BaseModel):
 
     message = models.TextField()
     rating = models.IntegerField(choices=Rating.choices, default=Rating.One.value)
-    file = models.FileField(upload_to='comments/')
+    file = models.FileField(upload_to='comments/', null=True)
     product = models.ForeignKey(ProductModel, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
 
@@ -124,7 +130,7 @@ class Value(BaseModel):
     name = models.CharField(max_length=250)
 
 
-class Attribute(models.Model):
+class AttributeModel(models.Model):
     key = models.ForeignKey(Key, on_delete=models.CASCADE)
     value = models.ForeignKey(Value, on_delete=models.CASCADE)
     product = models.ForeignKey(ProductModel, on_delete=models.CASCADE)

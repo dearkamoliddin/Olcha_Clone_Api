@@ -1,33 +1,45 @@
-from rest_framework import generics
+from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
-
 from olcha.models import GroupModel
-from olcha.serializers import GroupModelSerializer
+from olcha.serializers import GroupSerializer
 
 
-class GroupCreateApiView(generics.CreateAPIView):
-    queryset = GroupModel.objects.all()
-    serializer_class = GroupModelSerializer
+class GroupList(APIView):
+    def get(self, request, category_slug):
+        groups = GroupModel.objects.filter(category__slug=category_slug)
+        serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = GroupSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, category_slug):
+        groups = GroupModel.objects.filter(category__slug=category_slug)
+        groups.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class GroupListAPIView(generics.ListCreateAPIView):
-    queryset = GroupModel.objects.all()
-    serializer_class = GroupModelSerializer
-    lookup_field = 'slug'
+class GroupDetail(APIView):
+    def get(self, request, category_slug, group_slug):
+        groups = GroupModel.objects.filter(category__slug=category_slug, slug=group_slug)
+        serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data)
 
+    def post(self, request, category_slug, group_slug):
+        groups = GroupModel.objects.filter(category__slug=category_slug, slug=group_slug)
+        serializer = GroupSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# class GroupListAPIView(APIView):
-#     def get(self, request):
-#         groups = GroupModel.objects.all()
-#         serializer = GroupModelSerializer(groups, many=True, context={'request': request})
-#         return Response(serializer.data, status=HTTP_200_OK)
-
-
-class GroupDetailApiView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = GroupModel.objects.all()
-    serializer_class = GroupModelSerializer
-    lookup_field = 'slug'
-
+    def delete(self, request, category_slug, group_slug):
+        groups = GroupModel.objects.filter(category__slug=category_slug, slug=group_slug)
+        groups.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 

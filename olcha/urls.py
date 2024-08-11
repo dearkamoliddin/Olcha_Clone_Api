@@ -1,15 +1,20 @@
 from django.urls import path
-from olcha.views.category.views import CategoryListApiView, CategoryDetail
-from olcha.views.group.views import GroupCreateApiView, GroupListAPIView, GroupDetailApiView
-from olcha.views.product.views import ProductListApiView
+from olcha.views.group.views import GroupList, GroupDetail
+from olcha.views.product.views import ProductList, ProductDetail, ProductAttribute, ProductsAttribute
+from olcha.views.category.views import CategoryList, CategoryDetail
 
 urlpatterns = [
-    path('category/', CategoryListApiView.as_view(), name='category-list'),
-    path('category/<slug:slug>/edit/', CategoryDetail.as_view(), name='category-detail'),
+    # category
+    path('category/', CategoryList.as_view()),
+    path('category/detail/<slug:category_slug>/', CategoryDetail.as_view()),
 
-    path('group/create/', GroupCreateApiView.as_view(), name='group-create'),
-    path('category/<slug:slug>/', GroupListAPIView.as_view(), name='group-list'),
-    path('group/<slug:slug>/detail/', GroupDetailApiView.as_view(), name='group-detail'),
+    # group
+    path('category/<slug:category_slug>/', GroupList.as_view()),
+    path('category/<slug:category_slug>/<slug:group_slug>/detail/', GroupDetail.as_view()),
 
-    path('category/<slug:category_slug>/<slug:group_slug>/', ProductListApiView.as_view(), name='product-list'),
+    # product
+    path('category/<slug:category_slug>/<slug:group_slug>/', ProductList.as_view()),
+    path('category/<slug:category_slug>/<slug:group_slug>/<slug:product_slug>/', ProductDetail.as_view()),
+    path('category/<slug:category_slug>/<slug:group_slug>/<slug:product_slug>/attribute/', ProductAttribute.as_view()),
+    path('category/<slug:category_slug>/<slug:group_slug>/products/attributes/', ProductsAttribute.as_view()),
 ]
