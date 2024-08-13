@@ -125,9 +125,23 @@ class CommentModel(BaseModel):
 class Key(BaseModel):
     name = models.CharField(max_length=70)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Key'
+        verbose_name_plural = 'Keys'
+
 
 class Value(BaseModel):
     name = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Value'
+        verbose_name_plural = 'Values'
 
 
 class AttributeModel(models.Model):
@@ -136,3 +150,10 @@ class AttributeModel(models.Model):
     product = models.ForeignKey(ProductModel, on_delete=models.CASCADE)
 
     objects = models.Manager
+
+    def __str__(self):
+        return self.product.name
+
+    class Meta:
+        verbose_name = 'Attribute'
+        verbose_name_plural = 'Attributes'

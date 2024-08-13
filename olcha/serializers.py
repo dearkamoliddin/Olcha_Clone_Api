@@ -1,5 +1,8 @@
 from django.db.models import Avg
 from rest_framework import serializers
+from rest_framework.authtoken.admin import User
+from rest_framework.authtoken.models import Token
+
 from olcha.models import CategoryModel, GroupModel, ProductModel, AttributeModel
 
 
@@ -70,93 +73,53 @@ class AttributeSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'attributes']
 
 
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=255, required=True)
+    password = serializers.CharField(max_length=128, required=True)
+
+    class Meta:
+        fields = ['username', 'password']
 
 
+class RegisterSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(max_length=255)
+    last_name = serializers.CharField(max_length=255)
+    email = serializers.EmailField(max_length=255)
+    username = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=128)
+    password2 = serializers.CharField(max_length=128)
 
+    class Meta:
+        model = User
+        fields = '__all__'
 
+    def validate_username(self, username):
+        username = self.validated_data['username']
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError(
+                {
+                    'data': f'{username} already exists',
+                }
+            )
+        return username
 
+    def validate(self, instance):
+        if instance['password'] != instance['password2']:
+            data = {
+                'error': 'Passwords do not match',
+            }
+            raise serializers.ValidationError(detail=data)
 
+        if User.objects.filter(email=instance['email']).exists():
+            raise serializers.ValidationError({"message": "Email already taken!"})
 
+        return instance
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class CategoryModelSerializer(ModelSerializer):
-#     group_count = serializers.SerializerMethodField()
-#
-#     def get_group_count(self, obj):
-#         return obj.groups.count()
-#
-#     class Meta:
-#         model = CategoryModel
-#         fields = ['id', 'title', 'slug', 'image', 'group_count']
-#
-#
-# class GroupModelSerializer(ModelSerializer):
-#     # category = CategoryModelSerializer(read_only=True)
-#     category_slug = serializers.SlugField(source='category.slug')
-#     category_title = serializers.CharField(source='category.title')
-#     full_image_url = serializers.SerializerMethodField(method_name='get_image')
-#
-#     def get_image(self, obj):
-#         image_url = obj.image.url
-#         request = self.context.get('request')
-#         return request.build_absolute_uri(image_url)
-#
-#     class Meta:
-#         model = GroupModel
-#         exclude = ('image',)
-#
-#
-# class ProductModelSerializer(ModelSerializer):
-#     category_name = serializers.CharField(source='group.category.title')
-#     group_name = serializers.CharField(source='group.title')
-#     is_liked = serializers.SerializerMethodField()
-#     image = serializers.SerializerMethodField()
-#
-#     def get_is_liked(self, products):
-#         user = self.context['request'].user
-#         if user.is_authenticated:
-#             if user in products.is_liked.all():
-#                 return True
-#             return False
-#
-#     def get_image(self, products):
-#         image = products.objects.get(is_prime=True)
-#         if image:
-#             image_url = image.image.url
-#             request = self.context.get('request')
-#             return request.build_absolute_uri(image_url)
-#
-#
-#
-#     def get_avg_rating(self, products):
-#         avg_rating = products.comments.all().aggregate(avg=Round(Avg('rating')))
-#         return avg_rating.get('avg', 0)
-#
-#
-#     class Meta:
-#         model = ProductModel
-#         fields = '__all__'
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        password2 = validated_data.pop('password2')
+        user = User.objects.create(**validated_data)
+        user.set_password(password)
+        user.save()
+        Token.objects.create(user=user)
+        return user
