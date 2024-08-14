@@ -102,6 +102,31 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # first_name = serializers.CharField(max_length=255, required=False)
     # last_name = serializers.CharField(max_length=255, required=False)
     # email = serializers.EmailField(max_length=255, required=False)
