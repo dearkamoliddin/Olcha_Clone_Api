@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -46,16 +46,19 @@ class LogoutAPIView(APIView):
         )
 
 
-class RegisterAPIView(APIView):
+class RegisterAPIView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+
     def post(self, request, *args, **kwargs):
-        serializer = RegisterSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            response = {
-                'success': True,
-                'message': 'Successfully registered',
-                'username': serializer.data['username'],
-                'token': Token.objects.get(user=User.objects.get(username=serializer.data['username'])).key
-            }
-            return Response(response, status=status.HTTP_200_OK)
-        raise ValidationError(serializer.errors, code=status.HTTP_406_NOT_ACCEPTABLE)
+            user = serializer.save()
+            token, created = Token.objects.get_or_create(user=user)
+
+            return Response({
+                "user": RegisterSerializer(user).data,
+                "token": token.key,
+                "message": "User created successfully."
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

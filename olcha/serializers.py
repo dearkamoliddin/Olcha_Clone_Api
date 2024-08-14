@@ -1,3 +1,4 @@
+from django.contrib.auth.password_validation import validate_password
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.authtoken.admin import User
@@ -82,44 +83,63 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(max_length=255)
-    last_name = serializers.CharField(max_length=255)
-    email = serializers.EmailField(max_length=255)
-    username = serializers.CharField(max_length=255)
-    password = serializers.CharField(max_length=128)
-    password2 = serializers.CharField(max_length=128)
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['username', 'password', 'password2', 'email']
 
-    def validate_username(self, username):
-        username = self.validated_data['username']
-        if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError(
-                {
-                    'data': f'{username} already exists',
-                }
-            )
-        return username
-
-    def validate(self, instance):
-        if instance['password'] != instance['password2']:
-            data = {
-                'error': 'Passwords do not match',
-            }
-            raise serializers.ValidationError(detail=data)
-
-        if User.objects.filter(email=instance['email']).exists():
-            raise serializers.ValidationError({"message": "Email already taken!"})
-
-        return instance
+    def validate(self, data):
+        if data['password'] != data['password2']:
+            raise serializers.ValidationError({"password": "Passwords must match."})
+        return data
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
-        password2 = validated_data.pop('password2')
-        user = User.objects.create(**validated_data)
-        user.set_password(password)
-        user.save()
-        Token.objects.create(user=user)
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
         return user
+    # first_name = serializers.CharField(max_length=255, required=False)
+    # last_name = serializers.CharField(max_length=255, required=False)
+    # email = serializers.EmailField(max_length=255, required=False)
+    # username = serializers.CharField(max_length=255)
+    # password = serializers.CharField(max_length=128)
+    # password2 = serializers.CharField(max_length=128)
+    #
+    # class Meta:
+    #     model = User
+    #     fields = '__all__'
+    #
+    # def validate_username(self, username):
+    #     #username = self.data['username']
+    #     if User.objects.filter(username=username).exists():
+    #         raise serializers.ValidationError(
+    #             {
+    #                 'data': f'{username} already exists',
+    #             }
+    #         )
+    #     return username
+    #
+    # def validate(self, instance):
+    #     if instance['password'] != instance['password2']:
+    #         data = {
+    #             'error': 'Passwords do not match',
+    #         }
+    #         raise serializers.ValidationError(detail=data)
+    #
+    #     if User.objects.filter(email=instance['email']).exists():
+    #         raise serializers.ValidationError({"message": "Email already taken!"})
+    #
+    #     return instance
+    #
+    # def create(self, validated_data):
+    #     password = validated_data.pop('password')
+    #     password2 = validated_data.pop('password2')
+    #     user = self.create(**validated_data)
+    #     user.set_password(password)
+    #     user.save()
+    #     Token.objects.create(user=user)
+    #     return user
