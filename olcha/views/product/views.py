@@ -1,8 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from olcha.models import ProductModel
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,7 +8,7 @@ from olcha.serializers import ProductSerializer, ProductDetailSerializer, Attrib
 
 
 class ProductList(APIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request, category_slug, group_slug):
         products = ProductModel.objects.filter(group__category__slug=category_slug, group__slug=group_slug)
