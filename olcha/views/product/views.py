@@ -62,3 +62,4 @@ class ProductAttribute(APIView):
         product = ProductModel.objects.get(slug=product_slug)
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
