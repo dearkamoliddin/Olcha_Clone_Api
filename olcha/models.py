@@ -61,6 +61,7 @@ class ProductModel(BaseModel):
     description = models.TextField()
     price = models.DecimalField(max_digits=7, decimal_places=2)
     discount = models.IntegerField(default=0)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts', null=True)
     group = models.ForeignKey(GroupModel, on_delete=models.CASCADE, related_name='products')
     is_liked = models.ManyToManyField(User, related_name='liked_products', blank=True)
 

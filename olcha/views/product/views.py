@@ -5,6 +5,21 @@ from olcha.models import ProductModel
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from olcha.serializers import ProductSerializer, ProductDetailSerializer, AttributeSerializer
+from rest_framework.generics import ListCreateAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView
+from olcha import permissions as custom_permissions
+
+
+class ProductCreateAPIView(ListCreateAPIView):
+    permission_classes = [custom_permissions.CustomPermission]
+    serializer_class = ProductSerializer
+    queryset = ProductModel.objects.all()
+
+
+class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [custom_permissions.CustomPermission]
+    serializer_class = ProductSerializer
+    queryset = ProductModel.objects.all()
+    lookup_field = 'pk'
 
 
 class ProductList(APIView):
@@ -62,4 +77,6 @@ class ProductAttribute(APIView):
         product = ProductModel.objects.get(slug=product_slug)
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 

@@ -9,13 +9,15 @@ from root.custom_obtain_views import CustomTokenObtainPairView, LogoutView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
-    TokenBlacklistView
+    TokenBlacklistView,
+    TokenVerifyView,
 )
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('olcha.urls')),
+    path('olcha/', include('olcha.urls')),
+
     path('api-auth/', include('rest_framework.urls')),
     path('api-token-auth/', custom_token.CustomTokenObtain.as_view()),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
