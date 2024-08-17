@@ -6,7 +6,6 @@ from olcha.views.product.views import (
     ProductList,
     ProductDetail,
     ProductAttribute,
-    ProductsAttribute,
     ProductCreateAPIView,
     ProductDetailAPIView
 )
@@ -25,10 +24,9 @@ urlpatterns = [
     path('product-list/', ProductCreateAPIView.as_view(),),
     path('product-list/<int:pk>/', ProductDetailAPIView.as_view(),),
 
-    # path('category/<slug:category_slug>/<slug:group_slug>/', ProductList.as_view()),
-    # path('category/<slug:category_slug>/<slug:group_slug>/<slug:product_slug>/', ProductDetail.as_view()),
-    # path('category/<slug:category_slug>/<slug:group_slug>/<slug:product_slug>/attribute/', ProductAttribute.as_view()),
-    # path('category/<slug:category_slug>/<slug:group_slug>/products/attributes/', ProductsAttribute.as_view()),
+    path('category/<slug:category_slug>/<slug:group_slug>/', ProductList.as_view()),
+    path('category/<slug:category_slug>/<slug:group_slug>/<slug:product_slug>/', ProductDetail.as_view()),
+    path('category/<slug:category_slug>/<slug:group_slug>/<slug:product_slug>/attribute/', ProductAttribute.as_view()),
 
     # Login View
     path("login/", LoginAPIView.as_view(), name="user_login"),
