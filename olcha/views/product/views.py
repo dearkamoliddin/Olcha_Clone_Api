@@ -26,9 +26,16 @@ class ProductList(APIView):
     authentication_classes = [JWTAuthentication]
 
     def get(self, request, category_slug, group_slug):
-        products = ProductModel.objects.filter(group__category__slug=category_slug, group__slug=group_slug)
+        products = Product.objects.select_related('group__category').filter(
+            group__category__slug=category_slug,
+            group__slug=group_slug
+        )
         serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+    # def get(self, request, category_slug, group_slug):
+    #     products = ProductModel.objects.filter(group__category__slug=category_slug, group__slug=group_slug)
+    #     serializer = ProductSerializer(products, many=True, context={'request': request})
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ProductDetail(APIView):
@@ -69,10 +76,17 @@ class ProductDetail(APIView):
 
 class ProductAttribute(APIView):
 
-    def get(self, request, category_slug, group_slug, product_slug):
-        product = ProductModel.objects.get(slug=product_slug)
-        serializer = AttributeSerializer(product)
+    def get(self, request, category_slug, group_slug):
+        products = Product.objects.select_related('group__category').filter(
+            group__category__slug=category_slug,
+            group__slug=group_slug
+        )
+        serializer = AttributeSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    # def get(self, request, category_slug, group_slug, product_slug):
+    #     product = ProductModel.objects.get(slug=product_slug)
+    #     serializer = AttributeSerializer(product)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, category_slug, group_slug, product_slug):
         product = ProductModel.objects.get(slug=product_slug)
