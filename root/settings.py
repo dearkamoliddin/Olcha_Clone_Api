@@ -118,9 +118,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = 'staticfiles/'
-STATICFILES_DIRS = (BASE_DIR / 'static/', )
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# STATICFILES_DIRS = (BASE_DIR / 'static/', )
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -183,6 +185,23 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+def show_toolbar(request):
+    return True
+
+
+SHOW_TOOLBAR_CALLBACK = show_toolbar
+
 INTERNAL_IPS = [
     "127.0.0.1",
+    "192.168.0.1",
 ]
+
+DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False, }
+
+
+CACHES = {
+    'default': {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        'LOCATION': BASE_DIR / 'cache',
+    }
+}
