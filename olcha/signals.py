@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from django.middleware import cache
 from rest_framework.authtoken.models import Token
@@ -12,10 +12,12 @@ def save_profile(sender, instance, created, **kwargs):
         Token.objects.create(user=instance)
 
 
-# @receiver(pre_save, sender=ProductModel)
-# @receiver(post_save, sender=ProductModel)
-# def save_product(sender, instance, **kwargs):
-#     cache.delete('product_list')
-#     product_id = instance.id
-#     cache.delete(f'product_detail_{product_id}')
+@receiver(post_delete, sender=ProductModel)
+@receiver(pre_save, sender=ProductModel)
+@receiver(post_save, sender=ProductModel)
+def saved_product(sender, instance, **kwargs):
+    category_slug = kwargs.get('slug')
+    group_slug = kwargs.get('slug')
+    cache.delete(f'product_list_{category_slug}_{group_slug}')
+    cache.delete(f'product_detail_{instance.slug}')
 
